@@ -1,0 +1,55 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'balance_viewmodel.dart';
+
+// **************************************************************************
+// RiverpodGenerator
+// **************************************************************************
+
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
+
+@ProviderFor(BalanceViewModel)
+const balanceViewModelProvider = BalanceViewModelProvider._();
+
+final class BalanceViewModelProvider
+    extends $AsyncNotifierProvider<BalanceViewModel, BalanceState> {
+  const BalanceViewModelProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'balanceViewModelProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$balanceViewModelHash();
+
+  @$internal
+  @override
+  BalanceViewModel create() => BalanceViewModel();
+}
+
+String _$balanceViewModelHash() => r'3f2ae4079995732a973b27b96f858f54d9439cb2';
+
+abstract class _$BalanceViewModel extends $AsyncNotifier<BalanceState> {
+  FutureOr<BalanceState> build();
+  @$mustCallSuper
+  @override
+  void runBuild() {
+    final created = build();
+    final ref = this.ref as $Ref<AsyncValue<BalanceState>, BalanceState>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<AsyncValue<BalanceState>, BalanceState>,
+              AsyncValue<BalanceState>,
+              Object?,
+              Object?
+            >;
+    element.handleValue(ref, created);
+  }
+}
