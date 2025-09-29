@@ -189,8 +189,8 @@ class DashboardPage extends ConsumerWidget {
             const SizedBox(width: 12),
             Expanded(
               child: _SecondarySummaryCard(
-                title: 'ยอดรวม',
-                amount: summary.expenseOfMonth,
+                title: 'คงเหลือ',
+                amount: summary.saving,
                 color: totalAmount < 0 ? Colors.red : Colors.green,
                 icon: Icons.account_balance_wallet,
                 currencyFormat: currencyFormat,

@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tang_tem_pao_mb/feature/dashboard/repository/dashboard_repository.dart';
@@ -19,8 +20,7 @@ class DashboardRecentViewmodel extends _$DashboardRecentViewmodel {
     final res = await _dashboardRepository.loadRecentTransaction(
       page: 0,
       size: 10,
-      from: from,
-      to: to
+      filter: DateTimeRange(start: DateTime(now.year, now.month, 1), end: now) 
     );
     return res.match((l) => throw l.message, (r) => r);
   }
