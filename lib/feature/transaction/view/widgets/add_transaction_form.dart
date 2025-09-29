@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:tang_tem_pao_mb/core/constant/dimension_constant.dart';
 import 'package:tang_tem_pao_mb/core/constant/transaction_type_icon.dart';
+import 'package:tang_tem_pao_mb/core/enum/category_status_enum.dart';
 import 'package:tang_tem_pao_mb/core/enum/transaction_type_enum.dart';
 import 'package:tang_tem_pao_mb/core/provider/dialog_provider.dart';
 import 'package:tang_tem_pao_mb/core/theme/app_pallete.dart';
@@ -42,7 +43,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
             .read(transactionFormFilterTypeProvider.notifier)
             .setFilter(transactionData!.type);
       });
-      _amountString = transactionData!.amount.toStringAsFixed(2);
+      _amountString = transactionData!.amount.toStringAsFixed(0);
       _selectedCategory = transactionData!.categoryId;
       _transactionDate.text = transactionData!.transactionDate;
       if (transactionData!.description != null) {
@@ -83,15 +84,29 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
     try {
       if (_formKey.currentState!.validate()) {
         final selectedType = ref.read(transactionFormFilterTypeProvider);
-        await ref
-            .watch(transactionViewModelProvider.notifier)
-            .createTransaction(
-              double.parse(_amountString),
-              selectedType,
-              _transactionDate.text,
-              _descriptionController.text,
-              _selectedCategory!,
-            );
+        if (transactionData != null) {
+          await ref
+              .watch(transactionViewModelProvider.notifier)
+              .updateTransaction(
+                transactionData!.id,
+                double.parse(_amountString),
+                selectedType,
+                _transactionDate.text,
+                _descriptionController.text,
+                _selectedCategory!,
+              );
+        } else {
+          await ref
+              .watch(transactionViewModelProvider.notifier)
+              .createTransaction(
+                double.parse(_amountString),
+                selectedType,
+                _transactionDate.text,
+                _descriptionController.text,
+                _selectedCategory!,
+              );
+        }
+
         if (mounted) {
           Navigator.pop(context);
         }
@@ -171,7 +186,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
                     ),
                     const SizedBox(width: 8),
                     TextButton(
-                      onPressed: _onSave,
+                      onPressed: isLoading ? null : _onSave,
                       child: Text(
                         "บันทึก",
                         style: TextStyle(
@@ -250,7 +265,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'รายรับ',
+            TransactionType.income.getValue(isThai: true),
             style: TextStyle(
               fontSize: DimensionConstant.responsiveFont(context, 16),
             ),
@@ -259,7 +274,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'รายจ่าย',
+            TransactionType.expense.getValue(isThai: true),
             style: TextStyle(
               fontSize: DimensionConstant.responsiveFont(context, 16),
             ),
@@ -268,7 +283,7 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'โอนเงิน',
+            TransactionType.saving.getValue(isThai: true),
             style: TextStyle(
               fontSize: DimensionConstant.responsiveFont(context, 16),
             ),
@@ -291,15 +306,15 @@ class _AddTransactionFormState extends ConsumerState<AddTransactionForm> {
           ),
           const SizedBox(height: 16),
           CustomSelectBox<String>(
-            label: "ประเภท",
-            hint: "เลือกประเภท",
+            label: "หมวดหมู่",
+            hint: "เลือกหมวดหมู่",
             value: _selectedCategory,
             readOnly: categoryListAsync.isLoading,
             items: categoryListAsync.when(
               loading: () => [],
               error: (error, stack) => [],
               data: (categories) {
-                return categories.map((CategoryModel category) {
+                return categories.where((c) => c.status != CategoryStatus.inactive).map((CategoryModel category) {
                   final detail = TransactionTypeIcon.getDetails(category.type);
                   return DropdownMenuItem<String>(
                     value: category.id,

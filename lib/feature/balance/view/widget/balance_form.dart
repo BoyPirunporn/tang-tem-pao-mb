@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tang_tem_pao_mb/core/constant/dimension_constant.dart';
 import 'package:tang_tem_pao_mb/core/enum/balance_type_enum.dart';
 import 'package:tang_tem_pao_mb/core/theme/app_pallete.dart';
-import 'package:tang_tem_pao_mb/core/widgets/custom_button.dart';
 import 'package:tang_tem_pao_mb/core/widgets/custom_field.dart';
 import 'package:tang_tem_pao_mb/feature/balance/viewmodel/balance_viewmodel.dart';
 
@@ -55,41 +54,46 @@ class _BalanceFormState extends ConsumerState<BalanceForm> {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Container(
-                height: DimensionConstant.height(context,5),
-                constraints: BoxConstraints(maxWidth: 100, maxHeight: 80),
-                child: Button(
-                  color: AppPallete.destructiveDark,
-                  buttonText: "ยกเลิก",
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                style: TextButton.styleFrom(
+                  padding: EdgeInsets.zero, // ทำให้ปุ่มชิดขอบ
+                  minimumSize: Size(0, 0), // ปรับขนาดให้เล็กที่สุด
+                  tapTargetSize:
+                      MaterialTapTargetSize.shrinkWrap, // ลดพื้นที่คลิก
+                ),
+                child: Text(
+                  "ยกเลิก",
+                  style: TextStyle(
+                    fontSize: DimensionConstant.responsiveFont(context, 16),
+                    color: AppPallete.destructiveDark,
+                  ),
                 ),
               ),
-              SizedBox(width: 10),
-
-              Container(
-                height: DimensionConstant.height(context,5),
-                constraints: BoxConstraints(maxWidth: 100, maxHeight: 80),
-                child: Button(
-                  buttonText: "บันทึก",
-                  isSubmitting: ref.read(balanceViewModelProvider).isLoading,
-                  onTap: () async {
-                    if (_formKey.currentState!.validate()) {
-                      await ref
-                          .read(balanceViewModelProvider.notifier)
-                          .addBalance(
-                            _nameController.text,
-                            double.parse(_amountController.text),
-                            widget.type,
-                          );
-                    }
-                  },
+              const SizedBox(width: 8),
+              TextButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    await ref
+                        .read(balanceViewModelProvider.notifier)
+                        .addBalance(
+                          _nameController.text,
+                          double.parse(_amountController.text),
+                          widget.type,
+                        );
+                  }
+                },
+                child: Text(
+                  "บันทึก",
+                  style: TextStyle(
+                    fontSize: DimensionConstant.responsiveFont(context, 16),
+                    color: AppPallete.ringDark,
+                  ),
                 ),
               ),
             ],
           ),
-        ],
+          ],
       ),
     );
   }

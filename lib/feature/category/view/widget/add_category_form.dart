@@ -4,7 +4,6 @@ import 'package:tang_tem_pao_mb/core/constant/dimension_constant.dart';
 import 'package:tang_tem_pao_mb/core/enum/category_status_enum.dart';
 import 'package:tang_tem_pao_mb/core/enum/transaction_type_enum.dart';
 import 'package:tang_tem_pao_mb/core/theme/app_pallete.dart';
-import 'package:tang_tem_pao_mb/core/widgets/custom_button.dart';
 import 'package:tang_tem_pao_mb/core/widgets/custom_field.dart';
 import 'package:tang_tem_pao_mb/core/widgets/custom_select.dart';
 import 'package:tang_tem_pao_mb/feature/category/model/category_model.dart';
@@ -142,38 +141,64 @@ class _AddCategoryFormState extends ConsumerState<AddCategoryForm> {
                     ],
                   ),
                   const SizedBox(height: 40),
-                  Button(
-                    buttonText: "บันทึก",
-                    onTap: () async {
-                      if (_formKey.currentState!.validate()) {
-                        if (widget.data != null) {
-                          return await ref
-                              .read(categoryViewModelProvider.notifier)
-                              .updateCategory(
-                                widget.data!.id,
-                                widget.data!.color,
-                                _categoryNameController.text,
-                                _selectTransactionType,
-                                _selectCategoryStatus,
-                              );
-                        }
-                        await ref
-                            .read(categoryViewModelProvider.notifier)
-                            .addCategory(
-                              _categoryNameController.text,
-                              _selectTransactionType,
-                              _selectCategoryStatus,
-                            );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  Button(
-                    color: AppPallete.destructiveDark,
-                    buttonText: "ยกเลิก",
-                    onTap: () async {
-                      Navigator.pop(context);
-                    },
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero, // ทำให้ปุ่มชิดขอบ
+                          minimumSize: Size(0, 0), // ปรับขนาดให้เล็กที่สุด
+                          tapTargetSize:
+                              MaterialTapTargetSize.shrinkWrap, // ลดพื้นที่คลิก
+                        ),
+                        child: Text(
+                          "ยกเลิก",
+                          style: TextStyle(
+                            fontSize: DimensionConstant.responsiveFont(
+                              context,
+                              16,
+                            ),
+                            color: AppPallete.destructiveDark,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            if (widget.data != null) {
+                              return await ref
+                                  .read(categoryViewModelProvider.notifier)
+                                  .updateCategory(
+                                    widget.data!.id,
+                                    widget.data!.color,
+                                    _categoryNameController.text,
+                                    _selectTransactionType,
+                                    _selectCategoryStatus,
+                                  );
+                            }
+                            await ref
+                                .read(categoryViewModelProvider.notifier)
+                                .addCategory(
+                                  _categoryNameController.text,
+                                  _selectTransactionType,
+                                  _selectCategoryStatus,
+                                );
+                          }
+                        },
+                        child: Text(
+                          "บันทึก",
+                          style: TextStyle(
+                            fontSize: DimensionConstant.responsiveFont(
+                              context,
+                              16,
+                            ),
+                            color: AppPallete.ringDark,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

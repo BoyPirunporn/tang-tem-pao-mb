@@ -94,7 +94,7 @@ class BudgetRepository {
     required double targetAmount,
     required String startDate,
     required String endDate,
-    BudgetStatus status = BudgetStatus.active,
+    BudgetStatus? status = BudgetStatus.active,
   }) async {
     try {
       final response = await _client.put(
@@ -105,7 +105,7 @@ class BudgetRepository {
           'targetAmount': targetAmount,
           'startDate': startDate,
           'endDate': endDate,
-          'status': status.getValue(),
+          'status': status!.getValue(),
         }),
       );
       logger.log(response.data['payload'].toString());

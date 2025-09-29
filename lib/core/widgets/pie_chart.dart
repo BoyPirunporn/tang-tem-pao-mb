@@ -25,9 +25,11 @@ class _CustomPieChartState extends State<CustomPieChart> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        // --- The Pie Chart ---
+        SizedBox(height: 20),
         Expanded(
           child: PieChart(
             PieChartData(
@@ -45,9 +47,12 @@ class _CustomPieChartState extends State<CustomPieChart> {
                   });
                 },
               ),
-              borderData: FlBorderData(show: false),
+              borderData: FlBorderData(show: true),
               sectionsSpace: 3, // Space between slices
-              centerSpaceRadius: DimensionConstant.horizontalPadding(context, 5), // Creates the "donut" hole
+              centerSpaceRadius: DimensionConstant.horizontalPadding(
+                context,
+                10,
+              ), // Creates the "donut" hole
               sections: showingSections(),
             ),
             duration: const Duration(milliseconds: 250),
@@ -55,12 +60,22 @@ class _CustomPieChartState extends State<CustomPieChart> {
           ),
         ),
         // --- The Legend (Indicators) ---
-        SizedBox(width: 20,),
+        SizedBox(height: 20),
         Expanded(
-          child: ListView.builder(
+          child: GridView.builder(
             padding: EdgeInsets.symmetric(
               horizontal: DimensionConstant.horizontalPadding(context, 3),
               vertical: DimensionConstant.horizontalPadding(context, 3),
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: DimensionConstant.isMobile(context)
+                  ? 2
+                  : DimensionConstant.screenWidth(context) < 900
+                  ? 3
+                  : 4,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 5, // ปรับความสูง/กว้างของ item
             ),
             itemCount: widget.data.length,
             itemBuilder: (ctx, index) {
@@ -68,6 +83,7 @@ class _CustomPieChartState extends State<CustomPieChart> {
               return _Indicator(
                 color: item.color,
                 text: item.name,
+                size: DimensionConstant.responsiveFont(context, 16),
                 isSquare: true,
               );
             },
@@ -115,13 +131,13 @@ class _Indicator extends StatelessWidget {
     required this.text,
     required this.isSquare,
     this.size = 16,
-    this.textColor,
+    // this.textColor,
   });
   final Color color;
   final String text;
   final bool isSquare;
   final double size;
-  final Color? textColor;
+  // final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -142,9 +158,9 @@ class _Indicator extends StatelessWidget {
           Text(
             text,
             style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: textColor,
+              fontSize: DimensionConstant.responsiveFont(context, 16),
+              fontWeight: FontWeight.normal,
+              // color: textColor,
             ),
           ),
         ],

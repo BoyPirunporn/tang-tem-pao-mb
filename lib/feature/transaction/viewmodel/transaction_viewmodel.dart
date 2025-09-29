@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tang_tem_pao_mb/core/enum/transaction_type_enum.dart';
+import 'package:tang_tem_pao_mb/core/provider/dialog_provider.dart';
 import 'package:tang_tem_pao_mb/feature/transaction/model/transaction_state.dart';
 import 'package:tang_tem_pao_mb/feature/transaction/repository/transaction_filter.dart';
 import 'package:tang_tem_pao_mb/feature/transaction/repository/transaction_repository.dart';
@@ -16,6 +17,7 @@ class TransactionViewModel extends _$TransactionViewModel {
 
   @override
   Future<TransactionState> build() async {
+    state = AsyncValue.loading();
     _transactionRepository = ref.watch(transactionRepositoryProvider);
     final filter = ref.watch(transactionFilterProvider);
     final cancelToken = CancelToken();
@@ -28,11 +30,14 @@ class TransactionViewModel extends _$TransactionViewModel {
 
     final res = await _transactionRepository.getAllTransaction(
       type: filter.type,
-      name:filter.name,
+      name: filter.name,
       cancelToken: cancelToken,
     );
 
-    return res.fold((l) => throw l.message, (r) {
+    return res.fold((l){
+      state = AsyncValue.error(l.message, StackTrace.current);
+      return TransactionState(transactions: const []);
+    }, (r) {
       return TransactionState(transactions: r, temps: {});
     });
   }
@@ -65,18 +70,56 @@ class TransactionViewModel extends _$TransactionViewModel {
       },
     );
   }
+  Future<void> updateTransaction(
+    String id,
+    double amount,
+    TransactionType type,
+    String transactionDate,
+    String description,
+    String categoryId,
+  ) async {
+    state = AsyncValue.loading();
+    final res = await _transactionRepository.updateTransaction(
+      id:id,
+      type: type,
+      transactionDate: transactionDate,
+      description: description,
+      categoryId: categoryId,
+      amount: amount,
+    );
+    return res.match(
+      (l) {
+        DialogProvider.instance.showErrorDialog(message: l.message);
+        state = AsyncValue.error(l.message, StackTrace.current);
+      },
+      (r) {
+        final currentState = state.value;
+        if (currentState != null) {
+          currentState.transactions.add(r);
+          state = AsyncValue.data(currentState);
+        }
+      },
+    );
+  }
 
   void deleteTransactionById(String id) {
     final currentState = state.value;
     if (currentState == null) return;
 
-    final transactionToRemove = currentState.transactions.firstWhere((tx) => tx.id == id);
+    final transactionToRemove = currentState.transactions.firstWhere(
+      (tx) => tx.id == id,
+    );
 
     final index = currentState.transactions.indexOf(transactionToRemove);
-    final tempItem = TransactionTemp(index: index, transaction: transactionToRemove);
+    final tempItem = TransactionTemp(
+      index: index,
+      transaction: transactionToRemove,
+    );
 
     // 1. อัปเดต UI ทันที (Immutable update)
-    final newTransactions = currentState.transactions.where((tx) => tx.id != id).toList();
+    final newTransactions = currentState.transactions
+        .where((tx) => tx.id != id)
+        .toList();
     final newTemps = {...currentState.temps, id: tempItem};
 
     state = AsyncValue.data(
@@ -85,7 +128,8 @@ class TransactionViewModel extends _$TransactionViewModel {
 
     // 2. ยกเลิก Timer เก่า (ถ้ามี) และสตาร์ท Timer ใหม่เพื่อลบจริง
     _deleteTimers[id]?.cancel();
-    _deleteTimers[id] = Timer(const Duration(seconds: 4), () { // หน่วงเวลา 4 วินาที
+    _deleteTimers[id] = Timer(const Duration(seconds: 4), () {
+      // หน่วงเวลา 4 วินาที
       _finalizeDelete(id);
     });
   }
@@ -103,7 +147,7 @@ class TransactionViewModel extends _$TransactionViewModel {
     // 2. นำ item กลับเข้าที่เดิม (Immutable update)
     final newTransactions = [...currentState.transactions];
     newTransactions.insert(tempItem.index, tempItem.transaction);
-    
+
     final newTemps = {...currentState.temps}..remove(id);
 
     state = AsyncValue.data(

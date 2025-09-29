@@ -19,59 +19,75 @@ class BudgetPage extends ConsumerWidget {
     final budgetState = ref.watch(budgetViewModelProvider);
     return Scaffold(
       appBar: CustomAppBar(title: "เป้าหมาย"),
-      body: Column(
-        children: [
-          SizedBox(height: 20),
-          _buildToggleButton(ref, context),
-          SizedBox(height: 20),
-          Expanded(
-            child: budgetState.when(
-              loading: () => Center(child: CircularProgressIndicator()),
-              error: (error, stackTrace) =>
-                  Center(child: Text(error.toString())),
-              data: (budgets) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    // Define a breakpoint for tablet-sized screens.
-                    const double tabletBreakpoint = 600.0;
-
-                    // Determine the number of columns based on the screen width.
-                    // If width is less than 600 (phone), show 1 column.
-                    // If width is 600 or more (tablet), show 2 columns.
-                    final int crossAxisCount =
-                        constraints.maxWidth < tabletBreakpoint ? 1 : 2;
-
-                    // Adjust the aspect ratio based on the column count for a better look.
-                    final double aspectRatio = crossAxisCount == 1 ? 1.3 : 1.2;
-
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: crossAxisCount == 1
-                            ? 0
-                            : 20, // No horizontal spacing for 1 column
-                        childAspectRatio: aspectRatio,
-                      ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: DimensionConstant.horizontalPadding(
-                          context,
-                          3,
+      body: RefreshIndicator(
+        onRefresh: () async => await ref.refresh(budgetViewModelProvider),
+        child: Column(
+          children: [
+            SizedBox(height: 20),
+            _buildToggleButton(ref, context),
+            SizedBox(height: 20),
+            Expanded(
+              child: budgetState.when(
+                loading: () => Center(child: CircularProgressIndicator()),
+                error: (error, stackTrace) =>
+                    Center(child: Text(error.toString())),
+                data: (budgets) {
+                  if (budgets.isEmpty) {
+                    return Center(
+                      child: Text(
+                        "ยังไม่มีเป้าหมายที่สำเร็จ",
+                        style: TextStyle(
+                          fontSize: DimensionConstant.responsiveFont(
+                            context,
+                            20,
+                          ),
                         ),
-                        vertical: 8,
                       ),
-                      itemCount: budgets.length,
-                      itemBuilder: (cx, index) {
-                        final BudgetModel budget = budgets[index];
-                        return CardBudget(budget: budget);
-                      },
                     );
-                  },
-                );
-              },
+                  }
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Define a breakpoint for tablet-sized screens.
+                      const double tabletBreakpoint = 600.0;
+
+                      // If width is 600 or more (tablet), show 2 columns.
+                      final int crossAxisCount =
+                          constraints.maxWidth < tabletBreakpoint ? 1 : 2;
+
+                      // Adjust the aspect ratio based on the column count for a better look.
+                      final double aspectRatio = crossAxisCount == 1
+                          ? 1.3
+                          : 1.2;
+
+                      return GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: crossAxisCount == 1
+                              ? 0
+                              : 20, // No horizontal spacing for 1 column
+                          childAspectRatio: aspectRatio,
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: DimensionConstant.horizontalPadding(
+                            context,
+                            3,
+                          ),
+                          vertical: 8,
+                        ),
+                        itemCount: budgets.length,
+                        itemBuilder: (cx, index) {
+                          final BudgetModel budget = budgets[index];
+                          return CardBudget(budget: budget);
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "budgetPageFAB'",
@@ -170,10 +186,152 @@ class CardBudget extends ConsumerWidget {
                         },
                         child: Row(
                           children: [
-                            Icon(Icons.edit_rounded, color: Colors.grey[700]),
+                            Icon(Icons.edit_outlined, color: Colors.grey),
                             const SizedBox(width: 12),
                             Text(
                               'แก้ไข',
+                              style: TextStyle(
+                                fontSize: DimensionConstant.responsiveFont(
+                                  context,
+                                  16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'complete',
+                        onTap: () {
+                          DialogProvider.instance.showDialogBox(
+                            title: "บรรลุเป้าหมาย",
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Center(
+                                  child: Text(
+                                    "คุณต้องการจบเป้าหมายใช่หรือไม่",
+                                    style: TextStyle(
+                                      fontSize:
+                                          DimensionConstant.responsiveFont(
+                                            context,
+                                            18,
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 20),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Container(
+                                        width: DimensionConstant.width(
+                                          context,
+                                          13,
+                                        ),
+                                        alignment: Alignment.center,
+                                        constraints: BoxConstraints(
+                                          minWidth: 80,
+                                          maxWidth: 180,
+                                        ),
+                                        padding: EdgeInsets.all(
+                                          DimensionConstant.horizontalPadding(
+                                            context,
+                                            1,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "ยกเลิก",
+                                          style: TextStyle(
+                                            color: AppPallete.destructiveDark,
+                                            fontSize:
+                                                DimensionConstant.responsiveFont(
+                                                  context,
+                                                  16,
+                                                ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        bool ok = true;
+                                        if (budget.current <
+                                            budget.targetAmount) {
+                                          ok = await DialogProvider.instance
+                                              .showWarningDialog(
+                                                message:
+                                                    "ยอดเงินปัจจุบรรยังไม่ถึงเป้าหมายที่ตั้งไว้ \nคุณต้องการที่จะจบเป้าหมายใช่หรือไม่?",
+                                              );
+                                        }
+                                        if (ok) {
+                                          await ref
+                                              .read(
+                                                budgetViewModelProvider
+                                                    .notifier,
+                                              )
+                                              .editBudget(
+                                                id: budget.id,
+                                                categoryId: budget.categoryId,
+                                                type: budget.type,
+                                                targetAmount:
+                                                    budget.targetAmount,
+                                                startDate: budget.startDate,
+                                                endDate: budget.endDate,
+                                                status: BudgetStatus.complete,
+                                              );
+                                          ref.invalidate(
+                                            budgetViewModelProvider,
+                                          );
+                                        }
+                                        Future.microtask(() {
+                                          if (context.mounted) {
+                                            Navigator.pop(context);
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        width: DimensionConstant.width(
+                                          context,
+                                          13,
+                                        ),
+                                        alignment: Alignment.center,
+                                        constraints: BoxConstraints(
+                                          minWidth: 80,
+                                          maxWidth: 180,
+                                        ),
+                                        padding: EdgeInsets.all(
+                                          DimensionConstant.horizontalPadding(
+                                            context,
+                                            1,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          "ตกลง",
+                                          style: TextStyle(
+                                            color: AppPallete.primaryDark,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Icon(Icons.check, color: Colors.greenAccent),
+                            const SizedBox(width: 12),
+                            Text(
+                              'ทำสำเร็จแล้ว',
                               style: TextStyle(
                                 fontSize: DimensionConstant.responsiveFont(
                                   context,
@@ -264,30 +422,29 @@ class CardBudget extends ConsumerWidget {
             ),
             SizedBox(height: 10),
             RichText(
-                
-                text: TextSpan(
-                  text:
-                      "฿${NumberFormat.currency(locale: 'th_TH', symbol: '').format(budget.current)}",
-                  style: TextStyle(
-                    fontFamily: "Kanit",
-                    fontWeight: FontWeight.bold,
-                    fontSize: DimensionConstant.responsiveFont(context, 28),
-                    color: AppPallete.ringDark,
-                  ),
-                  children: [
-                    TextSpan(
-                      text:
-                          "/ ฿${NumberFormat.currency(locale: 'th_TH', symbol: '').format(budget.targetAmount)}",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[500],
-                        fontSize: DimensionConstant.responsiveFont(context, 16),
-                      ),
-                    ),
-                  ],
+              text: TextSpan(
+                text:
+                    "฿${NumberFormat.currency(locale: 'th_TH', symbol: '').format(budget.current)}",
+                style: TextStyle(
+                  fontFamily: "Kanit",
+                  fontWeight: FontWeight.bold,
+                  fontSize: DimensionConstant.responsiveFont(context, 28),
+                  color: AppPallete.ringDark,
                 ),
+                children: [
+                  TextSpan(
+                    text:
+                        "/ ฿${NumberFormat.currency(locale: 'th_TH', symbol: '').format(budget.targetAmount)}",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[500],
+                      fontSize: DimensionConstant.responsiveFont(context, 16),
+                    ),
+                  ),
+                ],
               ),
-            
+            ),
+
             Spacer(),
             LinearProgressIndicator(
               value: budget.current / budget.targetAmount,

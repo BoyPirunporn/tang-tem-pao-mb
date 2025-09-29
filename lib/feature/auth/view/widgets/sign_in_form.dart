@@ -2,10 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tang_tem_pao_mb/core/constant/dimension_constant.dart';
+import 'package:tang_tem_pao_mb/core/provider/dialog_provider.dart';
 import 'package:tang_tem_pao_mb/core/theme/app_pallete.dart';
 import 'package:tang_tem_pao_mb/core/widgets/custom_button.dart';
 import 'package:tang_tem_pao_mb/core/widgets/custom_field.dart';
 import 'package:tang_tem_pao_mb/feature/auth/viewmodel/auth_viewmodel.dart';
+import 'package:tang_tem_pao_mb/home_page.dart';
 
 class SigninForm extends ConsumerStatefulWidget {
   final VoidCallback handleToggle;
@@ -19,7 +21,7 @@ class _SigninFormState extends ConsumerState<SigninForm> {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-
+  bool isSubmitting = false;
   @override
   void dispose() {
     usernameController.dispose();
@@ -60,6 +62,7 @@ class _SigninFormState extends ConsumerState<SigninForm> {
                   ),
                   const SizedBox(height: 30),
                   CustomField(
+                    readOnly: isSubmitting,
                     contentPadding: EdgeInsets.symmetric(
                       vertical: DimensionConstant.verticalPadding(context, 5),
                       horizontal: DimensionConstant.verticalPadding(context, 2),
@@ -84,6 +87,7 @@ class _SigninFormState extends ConsumerState<SigninForm> {
                   ),
                   const SizedBox(height: 15),
                   CustomField(
+                    readOnly: isSubmitting,
                     contentPadding: EdgeInsets.symmetric(
                       vertical: DimensionConstant.verticalPadding(context, 5),
                       horizontal: DimensionConstant.verticalPadding(context, 2),
@@ -102,7 +106,7 @@ class _SigninFormState extends ConsumerState<SigninForm> {
                       final RegExp lower = RegExp(r"[a-z]");
                       final RegExp numeric = RegExp(r"[0-9]");
                       final RegExp special = RegExp(r"[^a-zA-Z0-9]");
-          
+
                       if (!upper.hasMatch(val)) {
                         return "ต้องมีตัวพิมพ์ใหญ่อย่างน้อย 1 ตัว";
                       }
@@ -115,21 +119,51 @@ class _SigninFormState extends ConsumerState<SigninForm> {
                       if (!special.hasMatch(val)) {
                         return "ต้องมีอักขระพิเศษ";
                       }
-          
+
                       return null;
                     },
                   ),
                   const SizedBox(height: 30),
                   Button(
+                    isSubmitting: isSubmitting,
                     buttonText: "เข้าสู่ระบบ",
                     onTap: () async {
                       if (formKey.currentState!.validate()) {
-                        await ref
-                            .read(authViewModelProvider.notifier)
-                            .login(
-                              username: usernameController.text,
-                              password: passwordController.text,
-                            );
+                        setState(() => isSubmitting = true);
+                        try {
+                          final isOk = await ref
+                              .read(authViewModelProvider.notifier)
+                              .login(
+                                username: usernameController.text,
+                                password: passwordController.text,
+                              );
+                          if (isOk) {
+                            Future.microtask(() {
+                              navigatorKey.currentState?.pushAndRemoveUntil(
+                                PageRouteBuilder(
+                                  pageBuilder: (c, a, a2) => HomePage(),
+                                  transitionsBuilder:
+                                      (cx, animation, _, child) {
+                                        return FadeTransition(
+                                          opacity: animation,
+                                          child: child,
+                                        );
+                                      },
+                                  transitionDuration: const Duration(
+                                    milliseconds: 500,
+                                  ),
+                                ),
+                                (_) => false,
+                              );
+                            });
+                          }
+                        } catch (ex) {
+                          DialogProvider.instance.showErrorDialog(
+                            message: ex.toString(),
+                          );
+                        } finally {
+                          if (mounted) setState(() => isSubmitting = false);
+                        }
                       }
                     },
                   ),

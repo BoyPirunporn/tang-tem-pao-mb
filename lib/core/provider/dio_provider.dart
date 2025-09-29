@@ -71,7 +71,41 @@ final dioProvider = Provider<Dio>((ref) {
 // Provider สำหรับ Dio instance ที่ "สะอาด" ไม่มี Interceptor
 // ใช้สำหรับ Login, Register, และ Refresh Token เพื่อไม่ให้เกิด Loop
 final cleanDioProvider = Provider<Dio>((ref) {
-  return Dio(BaseOptions(baseUrl: ServerConstant.serverUrl));
+  final dio = Dio(BaseOptions(baseUrl: ServerConstant.serverUrl));
+  dio.interceptors.add(
+    QueuedInterceptorsWrapper(
+      onError: (DioException ex, handler) async {
+        logger.log("Dio ${ex.response}");
+        if (ex.response?.statusCode == 400) {
+          handler.reject(
+            DioException(
+              requestOptions: ex.requestOptions,
+              response: ex.response,
+              message: ex.response?.data['errors'],
+              error: '${ex.response?.data['errors']}',
+              type: DioExceptionType.badResponse,
+            ),
+          );
+          return;
+        }
+        if (ex.response!.statusCode == 404) {
+          handler.reject(
+            DioException(
+              requestOptions: ex.requestOptions,
+              response: ex.response,
+              // message: ex.response!.data['detail'] ?? "เกิดข้อผิดพลาด",
+              message: "เกิดข้อผิดพลาด 404",
+              type: DioExceptionType.badResponse,
+            ),
+          );
+          return;
+        }
+        return handler.next(ex);
+      },
+    ),
+  );
+
+  return dio;
 });
 
 Future<String?> _performRefreshToken(Ref ref) async {

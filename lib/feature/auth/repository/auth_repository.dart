@@ -35,7 +35,6 @@ class AuthRepository {
           final ApiResponseBad bad = ApiResponseBad.fromJson(response.data);
           return Left(AppFailure(bad.errors.toString()));
         }
-        logger.log('status type ${resBodyMap['status'].runtimeType}');
         final ApiResponse res = ApiResponse.fromJson(response.data);
         return Left(AppFailure(res.message));
       }
@@ -50,12 +49,10 @@ class AuthRepository {
     required String password,
   }) async {
     try {
-      print("username $username password $password dio ${_dio == null}");
       final response = await _dio.post(
-       '/auth/login-mobile',
+        '/auth/login-mobile',
         data: {'username': username, 'password': password},
       );
-      logger.log(response.toString());
       final resBodyMap = response.data as Map<String, dynamic>;
       if (response.statusCode != 200) {
         if (response.statusCode == 400) {
@@ -67,10 +64,10 @@ class AuthRepository {
       }
       return Right(TokenResponseModel.fromMap(resBodyMap['payload']));
     } catch (e) {
-      logger.log(e.toString());
-      if(e is DioException){
-        logger.log(e.response!.data['message']);
-        return Left(AppFailure(e.response!.data['message']));
+      if (e is DioException) {
+        return Left(
+          AppFailure(e.response!.data['message'] ?? e.message),
+        );
       }
       return Left(AppFailure("เกิดข้อผิดพลาด"));
     }

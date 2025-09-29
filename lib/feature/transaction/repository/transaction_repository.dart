@@ -46,7 +46,6 @@ class TransactionRepository {
               )
               .toList();
 
-      await Future.delayed(const Duration(seconds: 2));
       return Right(transactions);
     } catch (e) {
       return Left(AppFailure(e.toString()));
@@ -64,6 +63,42 @@ class TransactionRepository {
     try {
       final res = await _client.post(
         '/transaction',
+        data: {
+          'id': id,
+          'type': type.getValue(),
+          'categoryId': categoryId,
+          'transactionDate': transactionDate,
+          'amount': amount,
+          'description': description,
+        },
+      );
+      Map<String, dynamic> resBody = res.data;
+      //logger.log("response : $resBody\nstatusCode: ${res.statusCode}");
+      if (res.statusCode! > 200) {
+        return Left(AppFailure(resBody['message']));
+      }
+      TransactionModel transactions = TransactionModel.fromMapResponse(
+        resBody['payload'],
+      );
+      return Right(transactions);
+    } catch (e) {
+      if (e is DioException) {
+        return Left(AppFailure(e.error.toString()));
+      }
+      return Left(AppFailure(e.toString()));
+    }
+  }
+  Future<Either<AppFailure, TransactionModel>> updateTransaction({
+    String? id,
+    required TransactionType type,
+    required String categoryId,
+    required String transactionDate,
+    required double amount,
+    String? description,
+  }) async {
+    try {
+      final res = await _client.put(
+        '/transaction/$id',
         data: {
           'id': id,
           'type': type.getValue(),

@@ -3,6 +3,7 @@ import 'dart:convert';
 class DashboardSummaryModel {
   final double incomeOfMonth;
   final double expenseOfMonth;
+  final double saving;
   final double incomeChangePercent;
   final double expenseChangePercent;
   final double percentageChangeNetProfit;
@@ -11,6 +12,7 @@ class DashboardSummaryModel {
   DashboardSummaryModel.empty()
       : incomeOfMonth = 0.0,
         expenseOfMonth = 0.0,
+        saving = 0.0,
         incomeChangePercent = 0.0,
         expenseChangePercent = 0.0,
         percentageChangeNetProfit = 0.0,
@@ -19,6 +21,7 @@ class DashboardSummaryModel {
   DashboardSummaryModel({
     required this.incomeOfMonth,
     required this.expenseOfMonth,
+    required this.saving,
     required this.incomeChangePercent,
     required this.expenseChangePercent,
     required this.percentageChangeNetProfit,
@@ -30,6 +33,7 @@ class DashboardSummaryModel {
   DashboardSummaryModel copyWith({
     double? incomeOfMonth,
     double? expenseOfMonth,
+    double? saving,
     double? incomeChangePercent,
     double? expenseChangePercent,
     double? percentageChangeNetProfit,
@@ -38,6 +42,7 @@ class DashboardSummaryModel {
     return DashboardSummaryModel(
       incomeOfMonth: incomeOfMonth ?? this.incomeOfMonth,
       expenseOfMonth: expenseOfMonth ?? this.expenseOfMonth,
+      saving: saving ?? this.saving,
       incomeChangePercent: incomeChangePercent ?? this.incomeChangePercent,
       expenseChangePercent: expenseChangePercent ?? this.expenseChangePercent,
       percentageChangeNetProfit: percentageChangeNetProfit ?? this.percentageChangeNetProfit,
@@ -49,6 +54,7 @@ class DashboardSummaryModel {
     return <String, dynamic>{
       'incomeOfMonth': incomeOfMonth,
       'expenseOfMonth': expenseOfMonth,
+      'saving':saving,
       'incomeChangePercent': incomeChangePercent,
       'expenseChangePercent': expenseChangePercent,
       'percentageChangeNetProfit': percentageChangeNetProfit,
@@ -60,6 +66,7 @@ class DashboardSummaryModel {
     return DashboardSummaryModel(
       incomeOfMonth: map['incomeOfMonth'] as double,
       expenseOfMonth: map['expenseOfMonth'] as double,
+      saving: map['saving'] as double,
       incomeChangePercent: map['incomeChangePercent'] as double,
       expenseChangePercent: map['expenseChangePercent'] as double,
       percentageChangeNetProfit: map['percentageChangeNetProfit'] as double,

@@ -33,7 +33,7 @@ final class BudgetViewModelProvider
   BudgetViewModel create() => BudgetViewModel();
 }
 
-String _$budgetViewModelHash() => r'd64627d280c8a5cde33dbef1113a25d519ab4c55';
+String _$budgetViewModelHash() => r'66f2daf73abb3a0e8a61b94251c97a7f1d56ab9f';
 
 abstract class _$BudgetViewModel extends $AsyncNotifier<List<BudgetModel>> {
   FutureOr<List<BudgetModel>> build();

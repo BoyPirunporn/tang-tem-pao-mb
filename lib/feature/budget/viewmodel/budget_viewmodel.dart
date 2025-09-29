@@ -8,12 +8,13 @@ import 'package:tang_tem_pao_mb/feature/budget/repository/budget_repository.dart
 
 part 'budget_viewmodel.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: false)
 class BudgetViewModel extends _$BudgetViewModel {
   late BudgetRepository _budgetRepository;
 
   @override
   Future<List<BudgetModel>> build() async {
+    state = AsyncValue.loading();
     _budgetRepository = ref.watch(budgetRepositoryProvider);
 
     final status = ref.watch(budgetFilterProvider);
@@ -47,6 +48,7 @@ class BudgetViewModel extends _$BudgetViewModel {
           title: "เกิดข้อผิดพลาด",
           message: l.message,
         );
+        state = AsyncValue.error(l.message, StackTrace.current);
       },
       (r) {
         state = AsyncData([...state.value ?? [], r]);
@@ -64,6 +66,7 @@ class BudgetViewModel extends _$BudgetViewModel {
     required double targetAmount,
     required String startDate,
     required String endDate,
+    BudgetStatus? status
   }) async {
     final res = await _budgetRepository.editBudget(
       id:id,
@@ -72,6 +75,7 @@ class BudgetViewModel extends _$BudgetViewModel {
       targetAmount: targetAmount,
       startDate: startDate,
       endDate: endDate,
+      status: status
     );
     return res.match(
       (l) {
@@ -82,9 +86,6 @@ class BudgetViewModel extends _$BudgetViewModel {
       },
       (r) {
         state = AsyncData([...state.value!.filter((e) => e.id != id), r]);
-        Future.microtask(() {
-          navigatorKey.currentState!.pop();
-        });
       },
     );
   }

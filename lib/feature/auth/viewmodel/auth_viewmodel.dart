@@ -1,6 +1,7 @@
 import 'dart:developer' as logger;
 
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tang_tem_pao_mb/core/provider/current_user_notifier.dart';
 import 'package:tang_tem_pao_mb/core/provider/dialog_provider.dart';
@@ -8,7 +9,6 @@ import 'package:tang_tem_pao_mb/feature/auth/model/token_response.dart';
 import 'package:tang_tem_pao_mb/feature/auth/repository/auth_local_repository.dart';
 import 'package:tang_tem_pao_mb/feature/auth/repository/auth_repository.dart';
 import 'package:tang_tem_pao_mb/feature/auth/view/pages/auth_page.dart';
-import 'package:tang_tem_pao_mb/home_page.dart';
 
 part 'auth_viewmodel.g.dart';
 
@@ -30,7 +30,7 @@ class AuthViewModel extends _$AuthViewModel {
     await _authLocalRepository.init();
   }
 
-  Future<void> login({
+  Future<bool> login({
     required String username,
     required String password,
   }) async {
@@ -41,31 +41,21 @@ class AuthViewModel extends _$AuthViewModel {
       password: password,
     );
 
-    res.fold(
-      (l) {
+    switch (res) {
+      case Left(value: final l):
         state = AsyncValue.error(l.message, StackTrace.current);
         DialogProvider.instance.showErrorDialog(
           title: "Error",
           message: l.message,
         );
-      },
-      (r) async {
+        logger.log('❌ Failure: ${l.message}');
+        return false;
+      case Right(value: final r):
         logger.log('✅ Success: $r');
-        Future.microtask(() {
-          navigatorKey.currentState?.pushAndRemoveUntil(
-            PageRouteBuilder(
-              pageBuilder: (_, __, ___) => HomePage(),
-              transitionsBuilder: (_, animation, __, child) {
-                return FadeTransition(opacity: animation, child: child);
-              },
-              transitionDuration: const Duration(milliseconds: 500),
-            ),
-            (_) => false,
-          );
-        });
         loginSuccess(r);
-      },
-    );
+        return true;
+    }
+    
   }
 
   AsyncValue<TokenResponseModel>? loginSuccess(TokenResponseModel response) {
@@ -113,6 +103,7 @@ class AuthViewModel extends _$AuthViewModel {
             logout();
           },
         );
+        state = AsyncValue.error(l.message, StackTrace.current);
       },
       (r) {
         state = loginSuccess(r); // ✅ อัปเดต state ว่ามีข้อมูลใหม่แล้ว
@@ -125,7 +116,7 @@ class AuthViewModel extends _$AuthViewModel {
     state = const AsyncValue.loading();
     // อ่านข้อมูลจาก Local Storage
     final tokenModel = _authLocalRepository.getAuthorize();
-    // logger.log("TOKENMODEL :$tokenModel");
+    logger.log("TOKENMODEL :$tokenModel");
     if (tokenModel != null) {
       // ถ้ามีข้อมูล ก็อัปเดต state
       _currentUserNotifier.addUser(tokenModel);

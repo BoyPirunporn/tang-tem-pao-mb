@@ -126,14 +126,12 @@ class DialogProvider {
                     if (onOk != null) onOk();
                   },
                   child: Container(
-                    constraints: const BoxConstraints(
-                      maxWidth: 120,
-                      minWidth: 80,
-                      maxHeight: 50,
-                    ),
-                    padding: EdgeInsets.all(
-                      DimensionConstant.horizontalPadding(context, 3),
-                    ),
+                    width: DimensionConstant.width(context, 13),
+                      alignment: Alignment.center,
+                      constraints: BoxConstraints(minWidth: 80, maxWidth: 180),
+                      padding: EdgeInsets.all(
+                        DimensionConstant.horizontalPadding(context, 1),
+                      ),
                     decoration: BoxDecoration(
                       color: AppPallete.destructiveDark,
                       borderRadius: BorderRadius.circular(10),
@@ -206,11 +204,11 @@ class DialogProvider {
                       if (onCancel != null) onCancel();
                     },
                     child: Container(
-                      width: 80,
+                      width: DimensionConstant.width(context, 13),
                       alignment: Alignment.center,
-                      constraints: BoxConstraints(maxWidth: 120),
+                      constraints: BoxConstraints(minWidth: 80, maxWidth: 180),
                       padding: EdgeInsets.all(
-                        DimensionConstant.horizontalPadding(context, 3),
+                        DimensionConstant.horizontalPadding(context, 1),
                       ),
                       child: Text(
                         "ยกเลิก",
@@ -232,11 +230,11 @@ class DialogProvider {
                       if (onOk != null) onOk();
                     },
                     child: Container(
-                      width: 80,
+                      width: DimensionConstant.width(context, 13),
                       alignment: Alignment.center,
-                      constraints: BoxConstraints(maxWidth: 120),
+                      constraints: BoxConstraints(minWidth: 80, maxWidth: 180),
                       padding: EdgeInsets.all(
-                        DimensionConstant.horizontalPadding(context, 3),
+                        DimensionConstant.horizontalPadding(context, 1),
                       ),
                       child: Text(
                         okText,

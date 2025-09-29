@@ -5,8 +5,8 @@ import 'package:tang_tem_pao_mb/feature/transaction/model/transaction_model.dart
 
 class DashboardState {
   final DashboardSummaryModel? summary;
-  final List<DashboardExpenseByCategory> chart;
-  final List<TransactionModel> recentTransactions;
+  final List<DashboardExpenseByCategory>? chart;
+  final List<TransactionModel>? recentTransactions;
 
   DashboardState({
     required this.summary,

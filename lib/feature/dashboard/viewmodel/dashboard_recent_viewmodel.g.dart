@@ -38,7 +38,7 @@ final class DashboardRecentViewmodelProvider
 }
 
 String _$dashboardRecentViewmodelHash() =>
-    r'14fbc541f2253cf96a809d4248726ba6493078e0';
+    r'75afa45dccdfc06632812b6b306bfb3e14e556ae';
 
 abstract class _$DashboardRecentViewmodel
     extends $AsyncNotifier<List<TransactionModel>> {

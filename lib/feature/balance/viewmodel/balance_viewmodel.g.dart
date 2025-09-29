@@ -33,7 +33,7 @@ final class BalanceViewModelProvider
   BalanceViewModel create() => BalanceViewModel();
 }
 
-String _$balanceViewModelHash() => r'3f2ae4079995732a973b27b96f858f54d9439cb2';
+String _$balanceViewModelHash() => r'baf0e427d9164edf936c95dd6f7e57563da445a6';
 
 abstract class _$BalanceViewModel extends $AsyncNotifier<BalanceState> {
   FutureOr<BalanceState> build();

@@ -34,7 +34,7 @@ final class TransactionViewModelProvider
 }
 
 String _$transactionViewModelHash() =>
-    r'08e8b0e66281daaa9cd43ffa02246c4bc628ecf8';
+    r'4dafc68a018a0025b4603e03cd22e986a9f6cbbd';
 
 abstract class _$TransactionViewModel extends $AsyncNotifier<TransactionState> {
   FutureOr<TransactionState> build();

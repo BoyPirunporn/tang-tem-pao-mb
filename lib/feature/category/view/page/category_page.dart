@@ -34,7 +34,6 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
 
     return Scaffold(
       appBar: CustomAppBar(title: "หมวดหมู่"),
-
       body: Padding(
         padding: EdgeInsets.symmetric(
           horizontal: DimensionConstant.horizontalPadding(context, 3),
@@ -43,7 +42,7 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
         child: Column(
           children: [
             CustomField(
-              prefixIcon: Icon(Icons.search),
+              prefixIcon: Icon(Icons.search,size: DimensionConstant.responsiveFont(context, 24),),
               hintText: "ค้นหาด้วยชื่อ",
               onChange: (String name) {
                 if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -58,53 +57,57 @@ class _CategoryPageState extends ConsumerState<CategoryPage> {
             ),
             SizedBox(height: 20),
             Expanded(
-              child: categoryState.when(
-                loading: () =>
-                    SingleChildScrollView(child: ListTitleSkeleton(length: 10)),
-                error: (err, stack) => Center(
-                  child: Text(
-                    "Error: $err",
-                    style: TextStyle(
-                      fontSize: DimensionConstant.responsiveFont(context, 16),
+              child: RefreshIndicator(
+                onRefresh: ()async => ref.invalidate(categoryViewModelProvider),
+                child: categoryState.when(
+                  loading: () =>
+                      SingleChildScrollView(child: ListTitleSkeleton(length: 10)),
+                  error: (err, stack) => Center(
+                    child: Text(
+                      "Error: $err",
+                      style: TextStyle(
+                        fontSize: DimensionConstant.responsiveFont(context, 16),
+                      ),
                     ),
                   ),
-                ),
-                data: (categories) {
-                  if (categories.isEmpty) {
-                    return Center(
-                      child: Text(
-                        "ยังไม่มีหมวดหมู่",
-                        style: TextStyle(
-                          fontSize: DimensionConstant.responsiveFont(
-                            context,
-                            16,
+                  data: (state) {
+                    if (state.categories.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "ยังไม่มีหมวดหมู่",
+                          style: TextStyle(
+                            fontSize: DimensionConstant.responsiveFont(
+                              context,
+                              16,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: categories.length,
-                          itemBuilder: (ctx, index) {
-                            final CategoryModel category = categories[index];
-                            return Padding(
-                              padding: EdgeInsets.symmetric(
-                                vertical: DimensionConstant.horizontalPadding(
-                                  context,
-                                  1.2,
+                      );
+                    }
+                    List<CategoryModel> categories = state.categories;
+                    return Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: categories.length,
+                            itemBuilder: (ctx, index) {
+                              final CategoryModel category = categories[index];
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                  vertical: DimensionConstant.horizontalPadding(
+                                    context,
+                                    1.2,
+                                  ),
                                 ),
-                              ),
-                              child: CategoryItem(category: category),
-                            );
-                          },
+                                child: CategoryItem(category: category),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ],

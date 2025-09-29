@@ -5,6 +5,7 @@ import 'package:tang_tem_pao_mb/core/enum/balance_type_enum.dart';
 import 'package:tang_tem_pao_mb/core/failure/app_failure.dart';
 import 'package:tang_tem_pao_mb/core/provider/dio_provider.dart';
 import 'package:tang_tem_pao_mb/feature/balance/model/balance_model.dart';
+import 'package:tang_tem_pao_mb/feature/balance/model/networth_snapshot_model.dart';
 
 final balanceRepositoryProvider = Provider<BalanceRepository>((ref) {
   // AuthRepository จะ "ขอ" httpClient ที่เราสร้างไว้มาใช้งาน
@@ -60,5 +61,16 @@ class BalanceRepository {
     } catch (e) {
       return Left(AppFailure(e.toString()));
     }
+  }
+
+  Future<List<NetWorthSnapshotModel>> fetchHistory() async {
+    await Future.delayed(const Duration(seconds: 1));
+    return [
+      NetWorthSnapshotModel(snapshotDate: DateTime(2025, 6, 30), netWorth: 340000.00),
+      NetWorthSnapshotModel(snapshotDate: DateTime(2025, 7, 31), netWorth: 360000.00),
+      NetWorthSnapshotModel(snapshotDate: DateTime(2025, 8, 31), netWorth: 380000.00),
+      NetWorthSnapshotModel(snapshotDate: DateTime(2025, 9, 30), netWorth: 392000.00),
+      NetWorthSnapshotModel(snapshotDate: DateTime(2025, 10, 31), netWorth: 410000.00),
+    ];
   }
 }

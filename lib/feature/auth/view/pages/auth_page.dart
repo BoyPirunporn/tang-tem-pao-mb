@@ -68,7 +68,6 @@ class _AuthPageState extends ConsumerState<AuthPage> {
             SignupForm(handleToggle: _handleToggle,),
           if(!_isSignUp)
             SigninForm(handleToggle: _handleToggle,),
-          
           // Animated Overlay using AnimatedPositioned
           AnimatedPositioned(
             duration: const Duration(milliseconds: 500),

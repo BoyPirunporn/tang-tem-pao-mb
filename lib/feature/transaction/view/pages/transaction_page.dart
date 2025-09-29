@@ -78,131 +78,138 @@ class TransactionPage extends ConsumerWidget {
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: transactionState.when(
-              loading: () => Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: DimensionConstant.horizontalPadding(context, 2),
-                  horizontal: DimensionConstant.horizontalPadding(context, 3),
+            child: RefreshIndicator(
+              onRefresh: () async =>
+                  await ref.refresh(transactionViewModelProvider),
+              child: transactionState.when(
+                loading: () => Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: DimensionConstant.horizontalPadding(context, 2),
+                    horizontal: DimensionConstant.horizontalPadding(context, 3),
+                  ),
+                  child: ListTitleSkeleton(),
                 ),
-                child: ListTitleSkeleton(),
-              ),
-              error: (error, stackTrace) =>
-                  Center(child: Text(error.toString())),
-              data: (state) => state.transactions.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "ยังไม่มีข้อมูลธุระกรรม",
-                            style: TextStyle(
-                              fontSize: DimensionConstant.responsiveFont(
-                                context,
-                                26,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          TextButton(
-                            onPressed: () {
-                              TransactionHelper.showBottomSheep(context);
-                            },
-                            child: Text(
-                              "เพิ่มธุรกรรมของคุณ",
+                error: (error, stackTrace) =>
+                    Center(child: Text(error.toString())),
+                data: (state) => state.transactions.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "ยังไม่มีข้อมูลธุระกรรม",
                               style: TextStyle(
                                 fontSize: DimensionConstant.responsiveFont(
                                   context,
-                                  18,
+                                  26,
                                 ),
                               ),
+                            ),
+                            SizedBox(height: 16),
+                            TextButton(
+                              onPressed: () {
+                                TransactionHelper.showBottomSheep(context);
+                              },
+                              child: Text(
+                                "เพิ่มธุรกรรมของคุณ",
+                                style: TextStyle(
+                                  fontSize: DimensionConstant.responsiveFont(
+                                    context,
+                                    18,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: ListView.builder(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: DimensionConstant.horizontalPadding(
+                                  context,
+                                  2,
+                                ),
+                              ),
+                              itemCount: state.transactions.length,
+                              itemBuilder: (ctx, index) {
+                                final tx = state.transactions[index];
+                                return Dismissible(
+                                  key: Key(tx.id),
+                                  confirmDismiss: (direction) async {
+                                    bool ok = await DialogProvider.instance
+                                        .showWarningDialog(
+                                          message:
+                                              "คุณต้องการที่จะลบรายการ '${tx.category}' ใช่หรือไม่",
+                                        );
+                                    return ok;
+                                  },
+                                  onDismissed: (direction) async {
+                                    ref
+                                        .read(
+                                          transactionViewModelProvider.notifier,
+                                        )
+                                        .deleteTransactionById(tx.id);
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).clearSnackBars();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          '${tx.category} ถูกลบแล้ว',
+                                        ),
+                                        duration: const Duration(
+                                          seconds: 3,
+                                        ), // ควรน้อยกว่า Timer เล็กน้อย
+                                        action: SnackBarAction(
+                                          label: 'ยกเลิก',
+                                          onPressed: () {
+                                            // เรียก undo โดยใช้ id
+                                            ref
+                                                .read(
+                                                  transactionViewModelProvider
+                                                      .notifier,
+                                                )
+                                                .undoDelete(tx.id);
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  direction: DismissDirection.endToStart,
+                                  background: Container(
+                                    color: AppPallete
+                                        .destructiveDark, // หรือ Colors.red
+                                    alignment: Alignment.centerRight,
+                                    padding: const EdgeInsets.only(right: 20.0),
+                                    child: const Icon(
+                                      Icons.delete_forever,
+                                      color: Colors.white,
+                                      size: 30,
+                                    ),
+                                  ),
+                                  child: TransactionListItem(
+                                    onTap: () {
+                                      TransactionHelper.showBottomSheep(
+                                        context,
+                                        data: tx,
+                                      );
+                                    },
+                                    description: tx.description,
+                                    category: tx.category,
+                                    type: tx.type,
+                                    amount: tx.amount,
+                                    date: tx.transactionDate,
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
                       ),
-                    )
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: DimensionConstant.horizontalPadding(
-                                context,
-                                2,
-                              ),
-                            ),
-                            itemCount: state.transactions.length,
-                            itemBuilder: (ctx, index) {
-                              final tx = state.transactions[index];
-                              return Dismissible(
-                                key: Key(tx.id),
-                                confirmDismiss: (direction) async {
-                                  bool ok = await DialogProvider.instance
-                                      .showWarningDialog(
-                                        message:
-                                            "คุณต้องการที่จะลบรายการ ${tx.category} ใช่หรือไม่",
-                                      );
-                                  return ok;
-                                },
-                                onDismissed: (direction) async {
-                                  ref
-                                      .read(
-                                        transactionViewModelProvider.notifier,
-                                      )
-                                      .deleteTransactionById(tx.id);
-                                  ScaffoldMessenger.of(
-                                    context,
-                                  ).clearSnackBars();
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text('${tx.category} ถูกลบแล้ว'),
-                                      duration: const Duration(
-                                        seconds: 3,
-                                      ), // ควรน้อยกว่า Timer เล็กน้อย
-                                      action: SnackBarAction(
-                                        label: 'ยกเลิก',
-                                        onPressed: () {
-                                          // เรียก undo โดยใช้ id
-                                          ref
-                                              .read(
-                                                transactionViewModelProvider
-                                                    .notifier,
-                                              )
-                                              .undoDelete(tx.id);
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                direction: DismissDirection.endToStart,
-                                background: Container(
-                                  color: AppPallete
-                                      .destructiveDark, // หรือ Colors.red
-                                  alignment: Alignment.centerRight,
-                                  padding: const EdgeInsets.only(right: 20.0),
-                                  child: const Icon(
-                                    Icons.delete_forever,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                ),
-                                child: TransactionListItem(
-                                  onTap: () {
-                                    TransactionHelper.showBottomSheep(
-                                      context,
-                                      data: tx,
-                                    );
-                                  },
-                                  category: tx.category,
-                                  type: tx.type,
-                                  amount: tx.amount,
-                                  date: tx.transactionDate,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
+              ),
             ),
           ),
         ],

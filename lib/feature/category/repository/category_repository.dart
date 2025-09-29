@@ -28,9 +28,11 @@ class CategoryRepository {
     CancelToken? cancelToken,
   }) async {
     try {
+      final  queryParameters = {'type': type != null ? type.getValue() : null, 'name': name};
+      logger.log("QUERY : $queryParameters");
       final res = await _client.get(
         "/category",
-        queryParameters: {'type': type, 'name': name},
+        queryParameters: queryParameters,
 
         cancelToken: cancelToken,
       );
@@ -109,6 +111,15 @@ class CategoryRepository {
     } catch (e) {
       logger.log(e.toString());
       return Left(AppFailure("ไม่สามารถโหลดข้อมูลได้ กรุณาติดต่อเจ้าหน้าที่"));
+    }
+  }
+
+   Future<Either<AppFailure, bool>> deleteById(String id) async {
+    try {
+      await _client.delete("/category/$id");
+      return Right(true);
+    } catch (e) {
+      return Left(AppFailure(e.toString()));
     }
   }
 }

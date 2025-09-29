@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:tang_tem_pao_mb/core/constant/dimension_constant.dart';
-import 'package:tang_tem_pao_mb/feature/dashboard/view/widgets/summary_skelenton_card.dart';
 
 class DashboardBlockSummarySkeleton extends ConsumerWidget {
   const DashboardBlockSummarySkeleton({super.key});
@@ -23,16 +22,58 @@ class DashboardBlockSummarySkeleton extends ConsumerWidget {
         children: [
           Container(
             width: DimensionConstant.horizontalPadding(context, 45),
-            height: DimensionConstant.horizontalPadding(context, 4),
+            height: DimensionConstant.horizontalPadding(context, 6),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(4),
             ),
           ),
           const SizedBox(height: 16),
-          SummaryCardSkeleton(),
-         ],
+          Shimmer.fromColors(
+            baseColor: baseColor,
+            highlightColor: highlightColor,
+            child: Row(
+              children: [
+                _buildCardPlaceholder(context),
+                _buildCardPlaceholder(context),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Shimmer.fromColors(
+            baseColor: baseColor,
+            highlightColor: highlightColor,
+            child: Row(
+              children: [
+                _buildCardPlaceholder(context),
+                _buildCardPlaceholder(context),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _buildCardPlaceholder(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          // ปรับ Padding ให้น้อยลงเล็กน้อยเพื่อให้การ์ดดูสมส่วน
+          horizontal: DimensionConstant.horizontalPadding(context, 1.5),
+          vertical: DimensionConstant.verticalPadding(context, 1),
+        ),
+        child: Container(
+          width: double.infinity,
+          height: 100,
+          decoration: BoxDecoration(
+            // ⭐️ ใช้ color ทึบเพื่อให้ Shimmer วาดทับได้
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+    );
+  }
+
 }

@@ -14,6 +14,7 @@ class BalanceViewModel extends _$BalanceViewModel {
   late BalanceRepository _balanceRepository;
   @override
   Future<BalanceState> build() async {
+    state = AsyncValue.loading();
     _balanceRepository = ref.watch(balanceRepositoryProvider);
 
     final res = await _balanceRepository.getAllBalance();
@@ -38,6 +39,7 @@ class BalanceViewModel extends _$BalanceViewModel {
           0,
           (sum, item) => sum + item.value,
         );
+        logger.log("total $totalAssets");
 
         return BalanceState(
           assets: assets,

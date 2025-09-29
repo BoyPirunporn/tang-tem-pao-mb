@@ -13,14 +13,14 @@ part of 'category_viewmodel.dart';
 const categoryViewModelProvider = CategoryViewModelProvider._();
 
 final class CategoryViewModelProvider
-    extends $AsyncNotifierProvider<CategoryViewModel, List<CategoryModel>> {
+    extends $AsyncNotifierProvider<CategoryViewModel, CategoryState> {
   const CategoryViewModelProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'categoryViewModelProvider',
-        isAutoDispose: false,
+        isAutoDispose: true,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -33,21 +33,20 @@ final class CategoryViewModelProvider
   CategoryViewModel create() => CategoryViewModel();
 }
 
-String _$categoryViewModelHash() => r'f56c0033b209cdecfcc931a1ee423d7755aa2128';
+String _$categoryViewModelHash() => r'c6a20703e19cb5d46dae383ed51fb276fd0f5411';
 
-abstract class _$CategoryViewModel extends $AsyncNotifier<List<CategoryModel>> {
-  FutureOr<List<CategoryModel>> build();
+abstract class _$CategoryViewModel extends $AsyncNotifier<CategoryState> {
+  FutureOr<CategoryState> build();
   @$mustCallSuper
   @override
   void runBuild() {
     final created = build();
-    final ref =
-        this.ref as $Ref<AsyncValue<List<CategoryModel>>, List<CategoryModel>>;
+    final ref = this.ref as $Ref<AsyncValue<CategoryState>, CategoryState>;
     final element =
         ref.element
             as $ClassProviderElement<
-              AnyNotifier<AsyncValue<List<CategoryModel>>, List<CategoryModel>>,
-              AsyncValue<List<CategoryModel>>,
+              AnyNotifier<AsyncValue<CategoryState>, CategoryState>,
+              AsyncValue<CategoryState>,
               Object?,
               Object?
             >;

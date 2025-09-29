@@ -7,10 +7,13 @@ import 'package:tang_tem_pao_mb/core/theme/app_theme.dart';
 import 'package:tang_tem_pao_mb/landing_page.dart';
 
 void main() async {
+  
   WidgetsFlutterBinding.ensureInitialized();
+
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
+
   runApp(ProviderScope(child: MyApp()));
 }
 

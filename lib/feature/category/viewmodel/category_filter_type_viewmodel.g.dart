@@ -39,7 +39,7 @@ final class CategoryFilterTypeViewModelProvider
 }
 
 String _$categoryFilterTypeViewModelHash() =>
-    r'efd692421e820ed1a7df925ae2ac47b34ddbe390';
+    r'd789c07f02167efdec1eb2a7d9d2502d4465e045';
 
 abstract class _$CategoryFilterTypeViewModel
     extends $AsyncNotifier<List<CategoryModel>> {

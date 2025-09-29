@@ -1,4 +1,4 @@
-package com.example.tang_tem_pao_mb
+package com.loko.tangtempao
 
 import io.flutter.embedding.android.FlutterActivity
 

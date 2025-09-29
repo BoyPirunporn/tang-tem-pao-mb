@@ -7,6 +7,7 @@ import 'package:tang_tem_pao_mb/core/theme/app_pallete.dart';
 
 class TransactionListItem extends StatelessWidget {
   final String category;
+  final String? description;
   final TransactionType type;
   final double amount;
   final String date;
@@ -18,6 +19,7 @@ class TransactionListItem extends StatelessWidget {
     required this.type,
     required this.amount,
     required this.date,
+    this.description,
     this.onTap
   });
 
@@ -31,11 +33,16 @@ class TransactionListItem extends StatelessWidget {
       onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: (details['color'] as Color).withValues(alpha: .1),
-        child: Container(
-          child: Icon(details['icon'] as IconData, color: details['color'] as Color,size: DimensionConstant.responsiveFont(context, 26),)),
+        child: Icon(details['icon'] as IconData, color: details['color'] as Color,size: DimensionConstant.responsiveFont(context, 26),),
       ),
       title: Text(category, style:  TextStyle(fontSize:DimensionConstant.responsiveFont(context, 16),fontWeight: FontWeight.w300)),
-      subtitle: Text(date, style: TextStyle(fontSize: DimensionConstant.responsiveFont(context,14),color: Colors.grey[600])),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(date, style: TextStyle(fontSize: DimensionConstant.responsiveFont(context,14),color: Colors.grey[600])),
+          Text(description??"", style: TextStyle(fontSize: DimensionConstant.responsiveFont(context,14),color: Colors.grey[600])),
+        ],
+      ),
       trailing: Text(
         '${type == TransactionType.expense ? '-' : '+'}฿${currencyFormat.format(amount)}',
         style: TextStyle(

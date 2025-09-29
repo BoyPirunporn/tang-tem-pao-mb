@@ -25,16 +25,21 @@ class DashboardRepository {
   DashboardRepository(this._client);
 
   Future<Either<AppFailure, DashboardSummaryModel>> loadSummary(
-    DateTimeRange filter,
+    DateTimeRange? filter,
   ) async {
     try {
       final queryParameters = Map.of({
-        'from': DateFormat("yyyy-MM-dd").format(filter.start),
-        'to': DateFormat("yyyy-MM-dd").format(filter.end),
+        'from': filter != null
+            ? DateFormat("yyyy-MM-dd").format(filter.start)
+            : null,
+        'to': filter != null
+            ? DateFormat("yyyy-MM-dd").format(filter.end)
+            : null,
       });
+      logger.log("queryParams $queryParameters");
       final response = await _client.get(
         "/dashboard/summary",
-        queryParameters: queryParameters,
+        queryParameters: filter != null ? queryParameters : null,
       );
       // logger.log("response summary : ${response.data}");
 
@@ -60,17 +65,23 @@ class DashboardRepository {
     }
   }
 
-  Future<Either<AppFailure, List<TransactionModel>>>
-  loadRecentTransaction() async {
+  Future<Either<AppFailure, List<TransactionModel>>> loadRecentTransaction({
+    required int page,
+    required int size,
+    DateTimeRange? filter
+  }) async {
     try {
+      Map<String, dynamic> queryParameters = Map.of({
+        'page': page,
+        'size': size
+      });
+
+      if (filter != null) {
+        queryParameters.addAll({'from': DateFormat("yyyy-MM-dd").format(filter.start), 'to': DateFormat("yyyy-MM-dd").format(filter.end)});
+      }
       final transactionLatest = await _client.get(
         "/dashboard/recent-transaction",
-        queryParameters: {
-          'page': 0,
-          'size': 5,
-          'from': '2025-09-10',
-          'to': '2025-09-14',
-        },
+        queryParameters: queryParameters,
       );
       // logger.log("response transactionLatest : ${transactionLatest.data}");
       final resBodyTransactionLatestMap =
@@ -91,16 +102,20 @@ class DashboardRepository {
   }
 
   Future<Either<AppFailure, List<DashboardExpenseByCategory>>>
-  loadExpenseByCategory(DateTimeRange filter) async {
+  loadExpenseByCategory(DateTimeRange? filter) async {
     try {
       final queryParameters = Map.of({
-        'from': DateFormat("yyyy-MM-dd").format(filter.start),
-        'to': DateFormat("yyyy-MM-dd").format(filter.end),
+        'from': filter != null
+            ? DateFormat("yyyy-MM-dd").format(filter.start)
+            : null,
+        'to': filter != null
+            ? DateFormat("yyyy-MM-dd").format(filter.end)
+            : null,
       });
 
       final res = await _client.get(
         "/dashboard/chart",
-        queryParameters: queryParameters,
+        queryParameters: filter != null ? queryParameters : null,
       );
       final resBodyLoadExpenseByCategoryMap = res.data as Map<String, dynamic>;
 
