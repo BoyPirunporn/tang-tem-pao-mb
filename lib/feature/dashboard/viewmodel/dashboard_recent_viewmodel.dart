@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tang_tem_pao_mb/feature/dashboard/repository/dashboard_repository.dart';
 import 'package:tang_tem_pao_mb/feature/transaction/model/transaction_model.dart';
@@ -13,9 +12,6 @@ class DashboardRecentViewmodel extends _$DashboardRecentViewmodel {
   Future<List<TransactionModel>> build() async {
     _dashboardRepository = ref.watch(dashboardRepositoryProvider);
     DateTime now = DateTime.now();
-    DateFormat format = DateFormat("yyyy-MM-dd");
-    String from = format.format(DateTime(now.year, now.month, 1));
-    String to = format.format(now);
     // เรียก fetch data ตอนแรก build
     final res = await _dashboardRepository.loadRecentTransaction(
       page: 0,

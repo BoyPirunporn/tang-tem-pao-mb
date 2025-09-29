@@ -190,7 +190,7 @@ class DashboardPage extends ConsumerWidget {
             Expanded(
               child: _SecondarySummaryCard(
                 title: 'คงเหลือ',
-                amount: summary.saving,
+                amount: summary.incomeOfMonth - summary.expenseOfMonth,
                 color: totalAmount < 0 ? Colors.red : Colors.green,
                 icon: Icons.account_balance_wallet,
                 currencyFormat: currencyFormat,
